@@ -5,6 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "prettier": "prettier --write \"src/**/*.js\"",
     "start": "parcel index.html --open",
     "build": "parcel build index.html"
   },
@@ -14,7 +15,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.4.5",
-    "parcel-bundler": "^1.12.3"
+    "parcel-bundler": "^1.12.3",
+    "prettier": "^1.18.2"
   },
   "dependencies": {
     "lodash": "^4.17.11",
