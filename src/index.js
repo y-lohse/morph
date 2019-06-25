@@ -2,42 +2,73 @@ import "./styles.css";
 import SVG from "svg.js";
 import random from "lodash/random";
 
-const scene = SVG("app").size(300, 300);
-var group = scene.group();
-group.x(150);
-group.y(300);
-group.rotate(180);
+const width = 375;
+const height = 500;
+const draw = SVG("app").size(width, height);
 
-const drawBranch = (startX, startY, len, branchWidth, angle) => {
-  group
+var scene = draw.group();
+scene.x(width / 2);
+scene.y(height);
+scene.rotate(180);
+
+const drawBranch = ({ x, y, length, thickness, angle }) => {
+  const lengthReduction = 0.8;
+  const angularDeviation = 1.3;
+  const angularSpread = 15;
+
+  const thicknessReudction = 0.8;
+  const nextThickness = thickness * thicknessReudction;
+
+  const halfThickness = thickness / 2;
+  const nextHalfThickness = nextThickness / 2;
+
+  const bezier = `${x + random(-8, 8)} ${y + length * random(0.1, 0.9)}`;
+
+  // faire des arrondis au bouts des branches
+  const bottomLeft = x - halfThickness;
+  const bottomRight = x + halfThickness;
+  const topLeft = x - nextHalfThickness;
+  const topRight = x + nextHalfThickness;
+  const top = y + length;
+  scene
     .path(
-      `M ${startX} ${startY} Q ${startX + random(-8, 8)} ${startY +
-        len * random(0.1, 0.9)} ${startX} ${startY + len}`
+      ` M ${bottomLeft} ${y}
+        Q ${bezier} ${topLeft} ${top}
+        Q ${topRight} ${top} ${topRight} ${top}
+        Q ${bezier} ${bottomRight} ${y}
+      `
     )
-    .stroke({ color: "#0E5C22", width: branchWidth, linecap: "round" })
-    .fill({ color: "#0E5C22", opacity: 0.2 })// makes some shaodws
-    .rotate(angle, startX, startY);
+    .stroke({ color: "#0E5C22", width: 1, linecap: "round" })
+    .fill({ color: "#0E5C22", opacity: 0.1 })
+    .rotate(angle, x, y);
 
-  if (len < 15) return;
+  if (length < 35) return;
 
   const theta = (angle * Math.PI) / 180;
-  const endX = startX - len * 0.95 * Math.sin(theta);
-  const endY = startY + len * 0.95 * Math.cos(theta);
+  const endX = x - length * Math.sin(theta);
+  const endY = y + length * Math.cos(theta);
+  // faire varier la position de reprise pour la placer en milieu de branche
 
-  drawBranch(
-    endX,
-    endY,
-    len * 0.8,
-    branchWidth * 0.7,
-    angle * 1.3 + random(-8, -25)
-  );
-  drawBranch(
-    endX,
-    endY,
-    len * 0.8,
-    branchWidth * 0.7,
-    angle * 1.3 + random(8, 25)
-  );
+  drawBranch({
+    x: endX,
+    y: endY,
+    length: length * lengthReduction,
+    thickness: nextThickness,
+    angle: angle * angularDeviation + -angularSpread
+  });
+  drawBranch({
+    x: endX,
+    y: endY,
+    length: length * lengthReduction,
+    thickness: nextThickness,
+    angle: angle * angularDeviation + angularSpread
+  });
 };
 
-drawBranch(0, 10, 70, 12, 0);
+drawBranch({
+  x: 0,
+  y: 0,
+  length: 90,
+  thickness: 25,
+  angle: 0
+});
