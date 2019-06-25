@@ -6,23 +6,23 @@ const width = 375;
 const height = 500;
 const draw = SVG("app").size(width, height);
 
-var scene = draw.group();
+const scene = draw.group();
 scene.x(width / 2);
 scene.y(height);
 scene.rotate(180);
 
+const bezier = (x1, y1, x2, y2, offsetX = 0, offsetY = 0) => `Q ${x1 + ((x2 - x1) / 2) + offsetX} ${y1 + ((y2 - y1) / 2) + offsetY} ${x2} ${y2}`
+
 const drawBranch = ({ x, y, length, thickness, angle }) => {
   const lengthReduction = 0.8;
   const angularDeviation = 1.3;
-  const angularSpread = 15;
+  const angularSpread = 18;
 
-  const thicknessReudction = 0.8;
+  const thicknessReudction = 0.7;
   const nextThickness = thickness * thicknessReudction;
 
   const halfThickness = thickness / 2;
   const nextHalfThickness = nextThickness / 2;
-
-  const bezier = `${x + random(-8, 8)} ${y + length * random(0.1, 0.9)}`;
 
   // faire des arrondis au bouts des branches
   const bottomLeft = x - halfThickness;
@@ -30,23 +30,24 @@ const drawBranch = ({ x, y, length, thickness, angle }) => {
   const topLeft = x - nextHalfThickness;
   const topRight = x + nextHalfThickness;
   const top = y + length;
+
   scene
-    .path(
-      ` M ${bottomLeft} ${y}
-        Q ${bezier} ${topLeft} ${top}
-        Q ${topRight} ${top} ${topRight} ${top}
-        Q ${bezier} ${bottomRight} ${y}
-      `
-    )
-    .stroke({ color: "#0E5C22", width: 1, linecap: "round" })
-    .fill({ color: "#0E5C22", opacity: 0.1 })
+    .path(`
+      M ${bottomLeft} ${y}
+      ${bezier(bottomLeft, y, topLeft, top)}
+      ${bezier(topLeft, top, topRight, top, 0, nextHalfThickness)}
+      ${bezier(topRight, top, bottomRight, y)}
+      ${bezier(bottomRight, y, bottomLeft, y, 0, -halfThickness)}
+    `)
+    // .stroke({ color: "#0E5C22", width: 1, linecap: "round" })
+    .fill({ color: "#0E5C22", opacity: 1 })
     .rotate(angle, x, y);
 
-  if (length < 35) return;
+  if (length < 30) return;
 
   const theta = (angle * Math.PI) / 180;
-  const endX = x - length * Math.sin(theta);
-  const endY = y + length * Math.cos(theta);
+  const endX = x - length * .95 * Math.sin(theta);
+  const endY = y + length * .95 * Math.cos(theta);
   // faire varier la position de reprise pour la placer en milieu de branche
 
   drawBranch({
@@ -69,6 +70,6 @@ drawBranch({
   x: 0,
   y: 0,
   length: 90,
-  thickness: 25,
+  thickness: 20,
   angle: 0
 });
