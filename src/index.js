@@ -14,11 +14,11 @@ scene.rotate(180);
 const bezier = (x1, y1, x2, y2, offsetX = 0, offsetY = 0) => `Q ${x1 + ((x2 - x1) / 2) + offsetX} ${y1 + ((y2 - y1) / 2) + offsetY} ${x2} ${y2}`
 
 const drawBranch = ({ x, y, length, thickness, angle }) => {
-  const lengthReduction = 0.8;
-  const angularDeviation = 1.3;
-  const angularSpread = 18;
+  const lengthReduction = random(.7, .9);
+  const angularDeviation = random(1.2, 1.4);
+  const angularSpread = random(4, 25);
 
-  const thicknessReudction = 0.7;
+  const thicknessReudction = random(.6, .9);
   const nextThickness = thickness * thicknessReudction;
 
   const halfThickness = thickness / 2;
@@ -34,16 +34,16 @@ const drawBranch = ({ x, y, length, thickness, angle }) => {
   scene
     .path(`
       M ${bottomLeft} ${y}
-      ${bezier(bottomLeft, y, topLeft, top)}
+      ${bezier(bottomLeft, y, topLeft, top, random(-halfThickness*.3, halfThickness*.3), random(-length*.3, length*.3))}
       ${bezier(topLeft, top, topRight, top, 0, nextHalfThickness)}
-      ${bezier(topRight, top, bottomRight, y)}
+      ${bezier(topRight, top, bottomRight, y, random(-halfThickness*.3, halfThickness*.3), random(-length*.3, length*.3))}
       ${bezier(bottomRight, y, bottomLeft, y, 0, -halfThickness)}
     `)
     // .stroke({ color: "#0E5C22", width: 1, linecap: "round" })
     .fill({ color: "#0E5C22", opacity: 1 })
     .rotate(angle, x, y);
 
-  if (length < 30) return;
+  if (length < 15) return;
 
   const theta = (angle * Math.PI) / 180;
   const endX = x - length * .95 * Math.sin(theta);
