@@ -8,14 +8,21 @@ const drawLeaf = ({ x, y, length }) => {
   const xOffset = random(length * .2, length);
   const yOffset = random(-length * .8, length * .8);
 
+  const gradient = scene.gradient('linear', function(stop) {
+    stop.at(0, '#66C071')
+    stop.at(.5, '#259A6A')
+    stop.at(.1, '#146B54')
+    stop.at(1, '#1E8762')
+  })
+
   scene
     .path(`
       M ${x} ${y}
       ${bezier(x, y, x, top, xOffset, yOffset)}
       ${bezier(x, top, x, y, -xOffset, yOffset)}
     `)
-    .stroke({ color: "#0E5C22", width: 1, linecap: "round" })
-    .fill({ color: "#0E5C22", opacity: 1 });
+    // .stroke({ color: "#0E5C22", width: 1, linecap: "round" })
+    .fill(gradient);
 };
 
 drawLeaf({
