@@ -5,15 +5,15 @@ import scene from "./init";
 import bezier from "./bezier";
 
 const drawLeaf = ({ x, y, length, width }) => {
-  const segments = 1;
+  const segments = random(1, 5);
   const yStep = length / segments;
   const top = y + length;
-  // const xOffset = random(width * .2, width);
-  // const yOffset = random(-yStep * .8, yStep * .8);
-  // const xInnerOffset = random(width * .1, width);
-  const xOffset = 150;
-  const yOffset = 0;
-  const xInnerOffset = 80;
+  const xOffset = random(width * .2, width);
+  const yOffset = random(-yStep * .8, yStep * .8);
+  const xInnerOffset = random(width * .1, width);
+  // const xOffset = 150;
+  // const yOffset = 0;
+  // const xInnerOffset = 80;
 
   const path = [];
   const path2 = [];
@@ -45,9 +45,9 @@ const drawLeaf = ({ x, y, length, width }) => {
 
   const gradient = scene.gradient('linear', function(stop) {
     stop.at(0, light.hex())
-    stop.at(.5, light.desaturate(.3).rotate(15).hex())
+    stop.at(.5, light.desaturate(random(.2, .4)).rotate(random(4, 17)).hex())
     stop.at(.51, dark.hex())
-    stop.at(1, dark.lighten(.3).hex())
+    stop.at(1, dark.lighten(random(.2, .5)).hex())
   });
 
   scene
