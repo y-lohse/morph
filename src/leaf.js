@@ -35,6 +35,7 @@ const drawLeaf = ({ x, y, length, width }) => {
   }
 
   const palette = ['#289B61', '#1C5438', '#71BC98', '#56A37E', '#EAC041', '#F9BB00', '#82453E', '#7C3B78', '#46B1C9', '#5A464C'];
+  const baseColor = Color(palette[random(0, palette.length - 1)]);
   const light = baseColor.lighten(.2)
   const dark = baseColor.darken(.2)
 
@@ -45,6 +46,22 @@ const drawLeaf = ({ x, y, length, width }) => {
     stop.at(1, dark.saturate(.3).hex())
   });
 
+  const gradient2 = scene.gradient('linear');
+  gradient2.at(0, '#ffffff', 0);
+
+  const stepSize = 1;
+  const stepDistance = 10;
+
+  for (let i = stepDistance; i < 100; i+=stepDistance){
+    gradient2.at((i - stepSize) / 100, '#ffffff', 0);
+    gradient2.at(i / 100, '#000', .15);
+    gradient2.at((i + stepSize) / 100, '#ffffff', 0);
+  }
+  
+  gradient2.at(1, '#ffffff', 0);
+
+  gradient2.from(0, 0).to(0, 1);
+
   scene
     .path(`
       M ${x} ${y}
@@ -53,6 +70,15 @@ const drawLeaf = ({ x, y, length, width }) => {
       ${path2.join(' ')}
     `)
     .fill(gradient);
+
+  scene
+    .path(`
+      M ${x} ${y}
+      ${path.join(' ')}
+      M ${x} ${y}
+      ${path2.join(' ')}
+    `)
+    .fill(gradient2);
 };
 
 drawLeaf({
