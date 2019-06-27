@@ -24,11 +24,15 @@ const drawLeaf = ({ x, y, length, width }) => {
     const widthMultiplier = sinusoidal(percent);
     const stepWidth = Math.round(width * widthMultiplier);
 
+    const previousPercent = i / segments;
+    const previousMultiplier = sinusoidal(previousPercent);
+    const previousStepWidth = Math.round(width * previousMultiplier);
+
     const startY = y + yStep * i;
     const endY = startY + yStep;
 
-    leftHand.push(bezier(x, startY, x + stepWidth, endY, xOffset, yOffset))
-    rightHand.push(bezier(x, startY, x - stepWidth, endY, -xOffset, yOffset))
+    leftHand.push(bezier(previousStepWidth, startY, stepWidth, endY, xOffset, yOffset))
+    rightHand.push(bezier(-previousStepWidth, startY, -stepWidth, endY, -xOffset, yOffset))
   }
 
   const palette = ['#289B61', '#1C5438', '#71BC98', '#56A37E', '#EAC041', '#F9BB00', '#82453E', '#7C3B78', '#46B1C9', '#5A464C'];
