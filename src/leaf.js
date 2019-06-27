@@ -1,18 +1,19 @@
 import SVG from "svg.js";
 import random from "lodash/random";
+import Color from "color";
 import scene from "./init";
 import bezier from "./bezier";
 
 const drawLeaf = ({ x, y, length, width }) => {
-  const segments = random(1, 5);
+  const segments = 1;
   const yStep = length / segments;
   const top = y + length;
-  const xOffset = random(length * .2, length);
-  const yOffset = random(-yStep * .8, yStep * .8);
-  const xInnerOffset = random(width * .1, width - xOffset);
-  // const xOffset = 80;
-  // const yOffset = 0;
-
+  // const xOffset = random(width * .2, width);
+  // const yOffset = random(-yStep * .8, yStep * .8);
+  // const xInnerOffset = random(width * .1, width);
+  const xOffset = 150;
+  const yOffset = 0;
+  const xInnerOffset = 80;
 
   const path = [];
   const path2 = [];
@@ -31,11 +32,22 @@ const drawLeaf = ({ x, y, length, width }) => {
     path2.push(bezier(x, startY, x - xOff, endY, -xOffset, yOffset))
   }
 
+  const palette = [
+    ['#289B61', '#1C5438'],
+    ['#71BC98', '#56A37E'],
+    ['#66C071', '#146B54'],
+    ['#EAC041', '#F9BB00'],
+    ['#82453E', '#82453E'],
+  ];
+  const colors = palette[random(0, palette.length - 1)];
+  const light = Color(colors[0]);
+  const dark = Color(colors[1]);
+
   const gradient = scene.gradient('linear', function(stop) {
-    stop.at(0, '#66C071')
-    stop.at(.5, '#259A6A')
-    stop.at(.1, '#146B54')
-    stop.at(1, '#1E8762')
+    stop.at(0, light.hex())
+    stop.at(.5, light.desaturate(.3).rotate(15).hex())
+    stop.at(.51, dark.hex())
+    stop.at(1, dark.lighten(.3).hex())
   });
 
   scene
@@ -50,7 +62,7 @@ const drawLeaf = ({ x, y, length, width }) => {
 
 drawLeaf({
   x: 0,
-  y: 20,
-  length: 300,
+  y: 0,
+  length: 400,
   width: 200,
 });
