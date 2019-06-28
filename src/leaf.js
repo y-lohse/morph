@@ -9,14 +9,14 @@ const drawLeaf = ({ x, y, length, width }) => {
   const leftHand = [];
   const rightHand = [];
 
-  const a = 1;
-  const b = 1;
+  const a = 14;
+  const b = 6;
   const m = 2;
   const n1 = 2;
   const n2 = 4;
   const n3 = 4;
 
-  const segments = 2;
+  const segments = 6;
   const phi = Math.PI / segments;
   const controlPoints = [];
 
@@ -43,27 +43,29 @@ const drawLeaf = ({ x, y, length, width }) => {
     const middleX = currentX - xStepLength / 2;
     const middleY = currentY - yStepLength / 2;
 
-    const xBump1 = random(-previousX, previousX);
-    const xBump2 = random(-currentX, currentX);
-    const yBump1 = random(-yStepLength * .5, yStepLength * .5);
-    const yBump2 = Math.min(random(-yStepLength * .5, yStepLength * .5), (yStepLength / 2) + yBump1);
+    // const xBump1 = random(-previousX, previousX);
+    // const xBump2 = random(-currentX, currentX);
+    // const yBump1 = random(-yStepLength * .5, yStepLength * .5);
+    // const yBump2 = Math.min(random(-yStepLength * .5, yStepLength * .5), (yStepLength / 2) + yBump1);
 
-    // const xBump1 = -previousX;
-    // const xBump2 = -currentX;
-    // const yBump1 = -yStepLength * .5;
-    // const yBump2 = Math.min(yStepLength * .5;
+    const xBump1 = 0;
+    const xBump2 = 0;
+    const yBump1 = -30;
+    const yBump2 = -30;
 
-    console.log({yStepLength, yBump1,yBump2});
-
-    if (false) {
+    if (true) {
+      const mult = (controlPoints.length - index + 1) / controlPoints.length;
       const toothX = currentX * 5;
-      const toothY = currentY * 1.2;
+      const toothY = currentY * (.4* mult + 1);
 
-      leftHand.push(bezier(previousX, previousY, toothX, toothY, xBump, -yBump));
-      leftHand.push(bezier(toothX, toothY, currentX, currentY, xBump, yBump));
+      const toothXBump = currentX;
+      const toothYBump = -currentX;
 
-      rightHand.push(bezier(-previousX, previousY, -toothX, toothY, -xBump, -yBump));
-      rightHand.push(bezier(-toothX, toothY, -currentX, currentY, -xBump, yBump));
+      leftHand.push(bezier(previousX, previousY, toothX, toothY, xBump1, yBump1, toothXBump, toothYBump));
+      leftHand.push(bezier(toothX, toothY, currentX, currentY, -toothXBump, -toothYBump, xBump2, yBump2));
+
+      rightHand.push(bezier(-previousX, previousY, -toothX, toothY, -xBump1, yBump1, -toothXBump, toothYBump));
+      rightHand.push(bezier(-toothX, toothY, -currentX, currentY, toothXBump, -toothYBump, -xBump2, yBump2));
     }
     else {
       leftHand.push(bezier(previousX, previousY, currentX, currentY, xBump1, yBump1, xBump2, yBump2));
@@ -96,7 +98,7 @@ const drawLeaf = ({ x, y, length, width }) => {
 
 drawLeaf({
   x: 0,
-  y: 40,
-  length: 400,
-  width: 200
+  y: 20,
+  length: 350,
+  width: 50
 })
