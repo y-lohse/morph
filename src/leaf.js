@@ -3,116 +3,51 @@ import random from "lodash/random";
 import Color from "color";
 import scene from "./init";
 import bezier from "./bezier";
-
-function getSuperformulaPoint(phi, a, b, y, z, n1, n2, n3) {
-    var point = {};
-
-    var r;
-    var t1, t2;
-    var radius;
-
-    t1 = Math.cos(y* phi / 4) / a;
-    t1 = Math.abs(t1);
-    t1 = Math.pow(t1, n2);
-
-    t2 = Math.sin(z * phi / 4) / b;
-    t2 = Math.abs(t2);
-    t2 = Math.pow(t2, n3);
-
-    r = Math.pow(t1 + t2, 1 / n1);
-
-    if(Math.abs(r) == 0) {
-        point.x = 0;
-        point.y = 0;
-    } else {
-        r = 1 / r;
-        point.x = r * Math.cos(phi);
-        point.y = r * Math.sin(phi);
-    }
-
-    return point;
-}
-
-const draw = ({ cx, cy, radius }) => {
-  var resolution = 800;
-  var phi = (Math.PI*2) / resolution;
-  const path = [];
-
-  const a = 1;
-  const b = 1;
-  const y = 5;
-  const z = 5; // keep y and z equal for more normal results
-  const n1 = 3;
-  const n2 = 1;
-  const n3 = 1;
-
-  console.log({ a, b });
-
-  for(var i=0; i<=resolution; i++) {
-    path.push(getSuperformulaPoint(phi*i, a, b, y, z, n1, n2, n3));
-  }
-
-  const maxOffset = path.reduce((largest, point) => {
-    var radius = Math.sqrt(point.x * point.x + point.y * point.y);
-    return radius > largest ? radius : largest;
-  }, 0);
-
-  console.log(maxOffset);
-
-  const beziers = path.map(({ x, y }) => `L ${cx + (y / maxOffset * radius)} ${cy + (-x / maxOffset * radius)}`);
-
-  const palette = ['#289B61', '#1C5438', '#71BC98', '#56A37E', '#EAC041', '#F9BB00', '#82453E', '#7C3B78', '#46B1C9', '#5A464C'];
-  // const baseColor = Color(palette[random(0, palette.length - 1)]);
-  const baseColor = Color(palette[0]);
-  const light = baseColor.lighten(.2);
-  const dark = baseColor.darken(.2);
-
-  const gradient = scene.gradient('linear', function(stop) {
-    stop.at(0, light.hex())
-    stop.at(.5, light.desaturate(.3).hex())
-    stop.at(.51, dark.hex())
-    stop.at(1, dark.saturate(.3).hex())
-  });
-
-  scene
-  .path(`
-    M ${cx} ${cy}
-    ${beziers.join(' ')}
-  `)
-  .fill(gradient);
-}
-
+import superformula from "./superformula";
 
 const drawLeaf = ({ x, y, length, width }) => {
-  // const segments = random(1, 5);
-  // const xOffset = random(width * .2, width);
-  // const yOffset = random(-yStep * .8, yStep * .8);
-  const segments = 2;
-  const xOffset = 250;
-  const yOffset = 0;
-
-  const yStep = length / segments;
-
   const leftHand = [];
   const rightHand = [];
 
-  const sinusoidal = x => Math.sin(3.14 * x);
+  const a = random(1, 8);
+  const b = random(1, 8);
+  const m = 2;
+  const n1 = 2;
+  const n2 = 4;
+  const n3 = 4;
 
-  for (let i = 0; i < segments; i++) {
-    const percent = (i + 1) / segments;
-    const widthMultiplier = sinusoidal(percent);
-    const stepWidth = Math.round(width * widthMultiplier);
+  const segments = 6;
+  const phi = Math.PI / segments;
+  const controlPoints = [];
 
-    const previousPercent = i / segments;
-    const previousMultiplier = sinusoidal(previousPercent);
-    const previousStepWidth = Math.round(width * previousMultiplier);
-
-    const startY = y + yStep * i;
-    const endY = startY + yStep;
-
-    leftHand.push(bezier(previousStepWidth, startY, stepWidth, endY, xOffset, yOffset, i === 0))
-    rightHand.push(bezier(-previousStepWidth, startY, -stepWidth, endY, -xOffset, yOffset, i === 0))
+  for(let i = 0; i <= segments; i++) {
+    const { x, y } = superformula(phi*i, a, b, m, m, n1, n2, n3);
+    controlPoints.push(y); // pushing y, that we will use as x later, because superformula assumes a normal cartesian coordinate system, and we draw bottom to top
   }
+
+  const largestPoint = Math.max(...controlPoints);
+  const scaleFactor = width / largestPoint;
+
+  const yStepLength = length / (controlPoints.length - 1);
+  controlPoints.forEach((controlPoint, index) => {
+    if (index === 0) return;
+
+    const endY = Math.round(index * yStepLength + y);
+    const startY = Math.round(endY - yStepLength + y);
+
+    const startX = Math.round(controlPoints[index - 1] * scaleFactor + x);
+    const endX = Math.round(controlPoints[index] * scaleFactor + x);
+
+    const xStepLength = Math.abs(endX - startX);
+
+    // const xBump = random(-xStepLength * .5, xStepLength * .5);
+    // const yBump = random(-yStepLength * .5, yStepLength * .5);
+    const xBump = 0;
+    const yBump = 0;
+
+    leftHand.push(bezier(startX, startY, endX, endY, xBump, yBump));
+    rightHand.push(bezier(-startX, startY, -endX, endY, -xBump, yBump));
+  });
 
   const palette = ['#289B61', '#1C5438', '#71BC98', '#56A37E', '#EAC041', '#F9BB00', '#82453E', '#7C3B78', '#46B1C9', '#5A464C'];
   // const baseColor = Color(palette[random(0, palette.length - 1)]);
@@ -137,8 +72,9 @@ const drawLeaf = ({ x, y, length, width }) => {
   .fill(gradient);
 };
 
-draw({
-  cx: 0,
-  cy: 250,
-  radius: 100
-});
+drawLeaf({
+  x: 0,
+  y: 20,
+  length: 400,
+  width: 100
+})
