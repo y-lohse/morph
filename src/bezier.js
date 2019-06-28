@@ -1,15 +1,19 @@
-const quadraticBezier = (previousX, previousY, destinationX, destinationY, offsetX = 0, offsetY = 0) => {
-  const straightX = previousX + ((destinationX - previousX) / 2);
-  const straightY = previousY + ((destinationY - previousY) / 2);
+const quadraticBezier = (startX, startY, destinationX, destinationY, offsetX = 0, offsetY = 0) => {
+  const straightX = startX + ((destinationX - startX) / 2);
+  const straightY = startY + ((destinationY - startY) / 2);
 
   return `Q ${straightX + offsetX} ${straightY + offsetY} ${destinationX} ${destinationY}`;
 }
 
-const cubicBezier = (previousX, previousY, destinationX, destinationY, offsetX = 0, offsetY = 0) => {
-  const straightX = previousX + ((destinationX - previousX) / 2);
-  const straightY = previousY + ((destinationY - previousY) / 2);
+// const cubicBezier = (startX, startY, destinationX, destinationY, offsetX = 0, offsetY = 0) => {
+//   const straightX = startX + ((destinationX - startX) / 2);
+//   const straightY = startY + ((destinationY - startY) / 2);
+//
+//   return `C ${straightX + offsetX} ${straightY + offsetY} ${straightX + offsetX} ${straightY + offsetY} ${destinationX} ${destinationY}`;
+// }
 
-  return `C ${straightX + offsetX} ${straightY + offsetY} ${straightX + offsetX} ${straightY + offsetY} ${destinationX} ${destinationY}`;
+const cubicBezier = (startX, startY, destinationX, destinationY, cx1 = 0, cy1 = 0, cx2 = 0, cy2 = 0) => {
+  return `C ${startX + cx1} ${startY + cy1} ${destinationX + cx2} ${destinationY + cy2} ${destinationX} ${destinationY}`;
 }
 
 export default cubicBezier;

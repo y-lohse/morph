@@ -9,14 +9,14 @@ const drawLeaf = ({ x, y, length, width }) => {
   const leftHand = [];
   const rightHand = [];
 
-  const a = 3;
+  const a = 1;
   const b = 1;
   const m = 2;
   const n1 = 2;
   const n2 = 4;
   const n3 = 4;
 
-  const segments = 6;
+  const segments = 2;
   const phi = Math.PI / segments;
   const controlPoints = [];
 
@@ -40,16 +40,22 @@ const drawLeaf = ({ x, y, length, width }) => {
 
     const xStepLength = currentX - previousX;
 
-    // const xBump = random(-xStepLength * .7, xStepLength * .7);
-    // const yBump = random(-yStepLength * .7, yStepLength * .7);
-    const xBump = 10;
-    const yBump = 20;
+    const middleX = currentX - xStepLength / 2;
+    const middleY = currentY - yStepLength / 2;
 
-    if (true) {
-      //generating teeth
-      const middleX = currentX - xStepLength / 2;
-      const middleY = currentY - yStepLength / 2;
+    const xBump1 = random(-previousX, previousX);
+    const xBump2 = random(-currentX, currentX);
+    const yBump1 = random(-yStepLength * .5, yStepLength * .5);
+    const yBump2 = Math.min(random(-yStepLength * .5, yStepLength * .5), (yStepLength / 2) + yBump1);
 
+    // const xBump1 = -previousX;
+    // const xBump2 = -currentX;
+    // const yBump1 = -yStepLength * .5;
+    // const yBump2 = Math.min(yStepLength * .5;
+
+    console.log({yStepLength, yBump1,yBump2});
+
+    if (false) {
       const toothX = currentX * 5;
       const toothY = currentY * 1.2;
 
@@ -60,8 +66,8 @@ const drawLeaf = ({ x, y, length, width }) => {
       rightHand.push(bezier(-toothX, toothY, -currentX, currentY, -xBump, yBump));
     }
     else {
-      leftHand.push(bezier(previousX, previousY, currentX, currentY, xBump, yBump));
-      rightHand.push(bezier(-previousX, previousY, -currentX, currentY, -xBump, yBump));
+      leftHand.push(bezier(previousX, previousY, currentX, currentY, xBump1, yBump1, xBump2, yBump2));
+      rightHand.push(bezier(-previousX, previousY, -currentX, currentY, -xBump1, yBump1, -xBump2, yBump2));
     }
   });
 
@@ -90,7 +96,7 @@ const drawLeaf = ({ x, y, length, width }) => {
 
 drawLeaf({
   x: 0,
-  y: 10,
-  length: 300,
-  width: 50
+  y: 40,
+  length: 400,
+  width: 200
 })
