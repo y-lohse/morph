@@ -9,8 +9,8 @@ const drawLeaf = ({ x, y, length, width }) => {
   const leftHand = [];
   const rightHand = [];
 
-  const a = 1;//random(1, 8);
-  const b = 1;//random(1, 8);
+  const a = 3;
+  const b = 1;
   const m = 2;
   const n1 = 2;
   const n2 = 4;
@@ -42,21 +42,21 @@ const drawLeaf = ({ x, y, length, width }) => {
 
     // const xBump = random(-xStepLength * .7, xStepLength * .7);
     // const yBump = random(-yStepLength * .7, yStepLength * .7);
-    const xBump = 0;
-    const yBump = 0;
+    const xBump = 10;
+    const yBump = 20;
 
     if (true) {
       //generating teeth
       const middleX = currentX - xStepLength / 2;
       const middleY = currentY - yStepLength / 2;
 
-      const toothX = middleX + 20;
-      const toothY = middleY + 30;
+      const toothX = currentX * 5;
+      const toothY = currentY * 1.2;
 
-      leftHand.push(bezier(previousX, previousY, toothX, toothY, xBump, yBump));
+      leftHand.push(bezier(previousX, previousY, toothX, toothY, xBump, -yBump));
       leftHand.push(bezier(toothX, toothY, currentX, currentY, xBump, yBump));
 
-      rightHand.push(bezier(-previousX, previousY, -toothX, toothY, -xBump, yBump));
+      rightHand.push(bezier(-previousX, previousY, -toothX, toothY, -xBump, -yBump));
       rightHand.push(bezier(-toothX, toothY, -currentX, currentY, -xBump, yBump));
     }
     else {
@@ -92,5 +92,5 @@ drawLeaf({
   x: 0,
   y: 10,
   length: 300,
-  width: 150
+  width: 50
 })
