@@ -31,8 +31,8 @@ const drawLeaf = ({ x, y, length, width }) => {
     const startY = y + yStep * i;
     const endY = startY + yStep;
 
-    leftHand.push(bezier(previousStepWidth, startY, stepWidth, endY, xOffset, yOffset))
-    rightHand.push(bezier(-previousStepWidth, startY, -stepWidth, endY, -xOffset, yOffset))
+    leftHand.push(bezier(previousStepWidth, startY, stepWidth, endY, xOffset, yOffset, i === 0))
+    rightHand.push(bezier(-previousStepWidth, startY, -stepWidth, endY, -xOffset, yOffset, i === 0))
   }
 
   const palette = ['#289B61', '#1C5438', '#71BC98', '#56A37E', '#EAC041', '#F9BB00', '#82453E', '#7C3B78', '#46B1C9', '#5A464C'];
