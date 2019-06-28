@@ -9,8 +9,8 @@ const drawLeaf = ({ x, y, length, width }) => {
   const leftHand = [];
   const rightHand = [];
 
-  const a = random(1, 8);
-  const b = random(1, 8);
+  const a = 1;//random(1, 8);
+  const b = 1;//random(1, 8);
   const m = 2;
   const n1 = 2;
   const n2 = 4;
@@ -26,27 +26,43 @@ const drawLeaf = ({ x, y, length, width }) => {
   }
 
   const largestPoint = Math.max(...controlPoints);
-  const scaleFactor = width / largestPoint;
+  const scaleFactor = (width / 2) / largestPoint;
 
   const yStepLength = length / (controlPoints.length - 1);
   controlPoints.forEach((controlPoint, index) => {
     if (index === 0) return;
 
-    const endY = Math.round(index * yStepLength + y);
-    const startY = Math.round(endY - yStepLength + y);
+    const currentY = Math.round(index * yStepLength + y);
+    const previousY = Math.round(currentY - yStepLength + y);
 
-    const startX = Math.round(controlPoints[index - 1] * scaleFactor + x);
-    const endX = Math.round(controlPoints[index] * scaleFactor + x);
+    const previousX = Math.round(controlPoints[index - 1] * scaleFactor + x);
+    const currentX = Math.round(controlPoints[index] * scaleFactor + x);
 
-    const xStepLength = Math.abs(endX - startX);
+    const xStepLength = currentX - previousX;
 
-    // const xBump = random(-xStepLength * .5, xStepLength * .5);
-    // const yBump = random(-yStepLength * .5, yStepLength * .5);
+    // const xBump = random(-xStepLength * .7, xStepLength * .7);
+    // const yBump = random(-yStepLength * .7, yStepLength * .7);
     const xBump = 0;
     const yBump = 0;
 
-    leftHand.push(bezier(startX, startY, endX, endY, xBump, yBump));
-    rightHand.push(bezier(-startX, startY, -endX, endY, -xBump, yBump));
+    if (true) {
+      //generating teeth
+      const middleX = currentX - xStepLength / 2;
+      const middleY = currentY - yStepLength / 2;
+
+      const toothX = middleX + 20;
+      const toothY = middleY + 30;
+
+      leftHand.push(bezier(previousX, previousY, toothX, toothY, xBump, yBump));
+      leftHand.push(bezier(toothX, toothY, currentX, currentY, xBump, yBump));
+
+      rightHand.push(bezier(-previousX, previousY, -toothX, toothY, -xBump, yBump));
+      rightHand.push(bezier(-toothX, toothY, -currentX, currentY, -xBump, yBump));
+    }
+    else {
+      leftHand.push(bezier(previousX, previousY, currentX, currentY, xBump, yBump));
+      rightHand.push(bezier(-previousX, previousY, -currentX, currentY, -xBump, yBump));
+    }
   });
 
   const palette = ['#289B61', '#1C5438', '#71BC98', '#56A37E', '#EAC041', '#F9BB00', '#82453E', '#7C3B78', '#46B1C9', '#5A464C'];
@@ -74,7 +90,7 @@ const drawLeaf = ({ x, y, length, width }) => {
 
 drawLeaf({
   x: 0,
-  y: 20,
-  length: 400,
-  width: 100
+  y: 10,
+  length: 300,
+  width: 150
 })
