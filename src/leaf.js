@@ -5,18 +5,18 @@ import scene from "./init";
 import bezier from "./bezier";
 import superformula from "./superformula";
 
-const drawLeaf = ({ x, y, length, width }) => {
+const drawLeaf = ({ x, y, length, width, hasTeeth = false }) => {
   const leftHand = [];
   const rightHand = [];
 
-  const a = 14;
-  const b = 6;
+  const a = random(1, 20);
+  const b = random(1, 20);
   const m = 2;
-  const n1 = 2;
-  const n2 = 4;
+  const n1 = random(2, 30);
+  const n2 = random(4, 40);
   const n3 = 4;
 
-  const segments = 6;
+  const segments = random(2, 6);
   const phi = Math.PI / segments;
   const controlPoints = [];
 
@@ -43,23 +43,37 @@ const drawLeaf = ({ x, y, length, width }) => {
     const middleX = currentX - xStepLength / 2;
     const middleY = currentY - yStepLength / 2;
 
-    // const xBump1 = random(-previousX, previousX);
-    // const xBump2 = random(-currentX, currentX);
-    // const yBump1 = random(-yStepLength * .5, yStepLength * .5);
-    // const yBump2 = Math.min(random(-yStepLength * .5, yStepLength * .5), (yStepLength / 2) + yBump1);
+    const xBump1 = random(-previousX * .3, previousX * .3);
+    const xBump2 = random(-currentX * .3, currentX * .3);
+    const yBump1 = random(-yStepLength * .3, yStepLength * .3);
+    const yBump2 = random(-yStepLength * .3, yStepLength * .3);
 
-    const xBump1 = 0;
-    const xBump2 = 0;
-    const yBump1 = -30;
-    const yBump2 = -30;
+    // const xBump1 = 0;
+    // const xBump2 = 0;
+    // const yBump1 = 0;
+    // const yBump2 = 0;
 
-    if (true) {
-      const mult = (controlPoints.length - index + 1) / controlPoints.length;
-      const toothX = currentX * 5;
-      const toothY = currentY * (.4* mult + 1);
+    if (hasTeeth) {
+      const remaining = (controlPoints.length - index) / controlPoints.length;
+      const maxToothX = middleX * 3;
+      const toothX = random(middleX, maxToothX);
+      // const toothX = middleX;
 
-      const toothXBump = currentX;
-      const toothYBump = -currentX;
+      const maxToothYOffset = middleY * .5 * ((toothX - middleX) / maxToothX) * remaining;
+      const toothY = middleY + random(-maxToothYOffset, maxToothYOffset);
+      // const toothY = middleY;
+
+      // roundness of the tip
+      // the bigger maxToothYOffset is, the smaller this can be become. Should not be above 0
+      const maxToothYBump = maxToothYOffset * 1.5;
+      const toothYBump = random(-maxToothYBump, 0);
+      // const toothYBump = 0;
+
+      // inclination of the blade
+      // bigger number make the blade rounder, small make it dig in
+      const maxToothXBump = toothX * (1 - (toothX / maxToothX));
+      const toothXBump = random(-maxToothXBump, maxToothXBump);
+      // const toothXBump = 0;
 
       leftHand.push(bezier(previousX, previousY, toothX, toothY, xBump1, yBump1, toothXBump, toothYBump));
       leftHand.push(bezier(toothX, toothY, currentX, currentY, -toothXBump, -toothYBump, xBump2, yBump2));
@@ -100,5 +114,6 @@ drawLeaf({
   x: 0,
   y: 20,
   length: 350,
-  width: 50
+  width: 150,
+  hasTeeth: true
 })
