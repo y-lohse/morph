@@ -10,20 +10,21 @@ const drawLeaf = ({ x, y, length, width, hasTeeth = false }) => {
   const leftHand = [];
   const rightHand = [];
 
-  const a = random(1, 20);
-  const b = random(1, 20);
-  const m = 2;
-  const n1 = random(2, 30);
-  const n2 = random(4, 40);
-  const n3 = 4;
-  // const a = 1;
-  // const b = 1;
+  // const a = random(1, 20);
+  // const b = random(1, 20);
   // const m = 2;
-  // const n1 = 2;
-  // const n2 = 4;
+  // const n1 = random(2, 30);
+  // const n2 = random(4, 40);
   // const n3 = 4;
+  const a = 1;
+  const b = 1;
+  const m = 2;
+  const n1 = 2;
+  const n2 = 4;
+  const n3 = 4;
 
-  const segments = random(2, 6);
+  // const segments = random(2, 6);
+  const segments = 4;
   const phi = Math.PI / segments;
   const controlPoints = [];
 
@@ -40,23 +41,24 @@ const drawLeaf = ({ x, y, length, width, hasTeeth = false }) => {
   // how far sidewyas the toth can spread
   // if the random is inside the loop, we can end up with very different sizes of leaves, an they look like planes
   const maxToothXMultiplier = 3;
-  const toothXMultiplier = random(1, maxToothXMultiplier, true);
-  // const toothXMultiplier = 2;
+  // const toothXMultiplier = random(1, maxToothXMultiplier, true);
+  const toothXMultiplier = 2;
 
   // how far worward the tooth can point
   // all tooth points in the same direction is probably safer
   const maxToothYMultiplier = .5;
-  const toothYMultiplier = random(-maxToothYMultiplier, maxToothYMultiplier);
-  // const toothYMultiplier = 0;
+  // const toothYMultiplier = random(-maxToothYMultiplier, maxToothYMultiplier);
+  const toothYMultiplier = 0;
 
   // tooth roundness, probably best to keep it uniform accross teeth
   const maxToothRoudness = yStepLength / 2;
-  const toothRoundness = random(-maxToothRoudness, 0);
-  // const toothRoundness = 0;
+  // const toothRoundness = random(-maxToothRoudness, 0);
+  const toothRoundness = 0;
 
   // inclination of the blade, negative make them point forward, positive backward. Values to high make the leaf grow too large
   // the randomness can be changed at each step, it looks cool
-  const bladeAngleMultiplier = random(-.5, .5);
+  // const bladeAngleMultiplier = random(-.5, .5);
+  const bladeAngleMultiplier = 0;
 
   controlPoints.forEach((controlPoint, index) => {
     if (index === 0) return;
@@ -109,8 +111,8 @@ const drawLeaf = ({ x, y, length, width, hasTeeth = false }) => {
   });
 
   const palette = ['#289B61', '#1C5438', '#71BC98', '#56A37E', '#EAC041', '#F9BB00', '#82453E', '#5A464C'];
-  const baseColor = Color(palette[random(0, palette.length - 1)]);
-  // const baseColor = Color(palette[0]);
+  // const baseColor = Color(palette[random(0, palette.length - 1)]);
+  const baseColor = Color(palette[0]);
   const light = baseColor.lighten(.2);
   const dark = baseColor.darken(.2);
 
@@ -128,13 +130,15 @@ const drawLeaf = ({ x, y, length, width, hasTeeth = false }) => {
     M ${x} ${y}
     ${rightHand.join(' ')}
   `)
-  .fill(gradient);
+  .fill(gradient).skew(0, 15).rotate(-10);
 };
 
 drawLeaf({
   x: 0,
   y: 20,
-  length: random(150, 400),
-  width: random(50, 200),
-  hasTeeth: random(0, 1, true)  > .5
+  // length: random(150, 400),
+  length: 200,
+  // width: random(50, 200),
+  width: 200,
+  hasTeeth: false
 })
