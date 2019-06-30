@@ -10,20 +10,20 @@ const drawLeaf = ({ x, y, length, width, hasTeeth = false }) => {
   const leftHand = [];
   const rightHand = [];
 
-  // const a = random(1, 20);
-  // const b = random(1, 20);
-  // const m = 2;
-  // const n1 = random(2, 30);
-  // const n2 = random(4, 40);
-  // const n3 = 4;
-  const a = 1;
-  const b = 1;
+  const a = random(1, 20);
+  const b = random(1, 20);
   const m = 2;
-  const n1 = 2;
-  const n2 = 4;
+  const n1 = random(2, 30);
+  const n2 = random(4, 40);
   const n3 = 4;
+  // const a = 1;
+  // const b = 1;
+  // const m = 2;
+  // const n1 = 2;
+  // const n2 = 4;
+  // const n3 = 4;
 
-  const segments = 4;
+  const segments = random(2, 6);
   const phi = Math.PI / segments;
   const controlPoints = [];
 
@@ -41,12 +41,22 @@ const drawLeaf = ({ x, y, length, width, hasTeeth = false }) => {
   // if the random is inside the loop, we can end up with very different sizes of leaves, an they look like planes
   const maxToothXMultiplier = 3;
   const toothXMultiplier = random(1, maxToothXMultiplier, true);
-  // const toothXMultiplier = maxToothXMultiplier;
+  // const toothXMultiplier = 2;
 
   // how far worward the tooth can point
   // all tooth points in the same direction is probably safer
-  const maxToothYMultiplier = .7;
+  const maxToothYMultiplier = .5;
   const toothYMultiplier = random(-maxToothYMultiplier, maxToothYMultiplier);
+  // const toothYMultiplier = 0;
+
+  // tooth roundness, probably best to keep it uniform accross teeth
+  const maxToothRoudness = yStepLength / 2;
+  const toothRoundness = random(-maxToothRoudness, 0);
+  // const toothRoundness = 0;
+
+  // inclination of the blade, negative make them point forward, positive backward. Values to high make the leaf grow too large
+  // the randomness can be changed at each step, it looks cool
+  const bladeAngleMultiplier = random(-.5, .5);
 
   controlPoints.forEach((controlPoint, index) => {
     if (index === 0) return;
@@ -74,7 +84,7 @@ const drawLeaf = ({ x, y, length, width, hasTeeth = false }) => {
       const middleX = currentX - xStepLength / 2;
       const middleY = currentY - yStepLength / 2;
 
-      const toothX = middleX * maxToothXMultiplier;
+      const toothX = middleX * toothXMultiplier;
 
       //we only allow bit Y tootth dispalcement for big X tooth
       // 1 if the tooth is big, 0 if it's non existant
@@ -84,23 +94,13 @@ const drawLeaf = ({ x, y, length, width, hasTeeth = false }) => {
 
       const toothY = middleY * (1 + toothYMultiplier * toothreduction * advancementreduction);//TODO: decomposer ce calcul pour faie le random a l'exterieur de la boucle
 
-      // roundness of the tip
-      // the bigger maxToothYOffset is, the smaller this can be become. Should not be above 0
-      // const maxToothYBump = maxToothYOffset * 1.5;
-      // const toothYBump = random(-maxToothYBump, 0);
-      const toothYBump = 0;
+      const toothXBump = toothX * bladeAngleMultiplier;
 
-      // inclination of the blade
-      // bigger number make the blade rounder, small make it dig in
-      // const maxToothXBump = toothX * (1 - (toothX / maxToothX));
-      // const toothXBump = random(-maxToothXBump, maxToothXBump);
-      const toothXBump = 0;
+      leftHand.push(bezier(previousX, previousY, toothX, toothY, xBump1, yBump1, toothXBump, toothRoundness));
+      leftHand.push(bezier(toothX, toothY, currentX, currentY, -toothXBump, -toothRoundness, xBump2, yBump2));
 
-      leftHand.push(bezier(previousX, previousY, toothX, toothY, xBump1, yBump1, toothXBump, toothYBump));
-      leftHand.push(bezier(toothX, toothY, currentX, currentY, -toothXBump, -toothYBump, xBump2, yBump2));
-
-      rightHand.push(bezier(-previousX, previousY, -toothX, toothY, -xBump1, yBump1, -toothXBump, toothYBump));
-      rightHand.push(bezier(-toothX, toothY, -currentX, currentY, toothXBump, -toothYBump, -xBump2, yBump2));
+      rightHand.push(bezier(-previousX, previousY, -toothX, toothY, -xBump1, yBump1, -toothXBump, toothRoundness));
+      rightHand.push(bezier(-toothX, toothY, -currentX, currentY, toothXBump, -toothRoundness, -xBump2, yBump2));
     }
     else {
       leftHand.push(bezier(previousX, previousY, currentX, currentY, xBump1, yBump1, xBump2, yBump2));
@@ -108,9 +108,9 @@ const drawLeaf = ({ x, y, length, width, hasTeeth = false }) => {
     }
   });
 
-  const palette = ['#289B61', '#1C5438', '#71BC98', '#56A37E', '#EAC041', '#F9BB00', '#82453E', '#7C3B78', '#46B1C9', '#5A464C'];
-  // const baseColor = Color(palette[random(0, palette.length - 1)]);
-  const baseColor = Color(palette[0]);
+  const palette = ['#289B61', '#1C5438', '#71BC98', '#56A37E', '#EAC041', '#F9BB00', '#82453E', '#5A464C'];
+  const baseColor = Color(palette[random(0, palette.length - 1)]);
+  // const baseColor = Color(palette[0]);
   const light = baseColor.lighten(.2);
   const dark = baseColor.darken(.2);
 
@@ -134,7 +134,7 @@ const drawLeaf = ({ x, y, length, width, hasTeeth = false }) => {
 drawLeaf({
   x: 0,
   y: 20,
-  length: 350,
-  width: 150,
-  hasTeeth: true
+  length: random(150, 400),
+  width: random(50, 200),
+  hasTeeth: random(0, 1, true)  > .5
 })
