@@ -1,6 +1,7 @@
 import SVG from "svg.js";
 import random from "lodash/random";
 import Color from "color";
+import BezierEasing from "bezier-easing";
 import scene from "./init";
 import bezier from "./bezier";
 import superformula from "./superformula";
@@ -9,14 +10,20 @@ const drawLeaf = ({ x, y, length, width, hasTeeth = false }) => {
   const leftHand = [];
   const rightHand = [];
 
-  const a = random(1, 20);
-  const b = random(1, 20);
+  // const a = random(1, 20);
+  // const b = random(1, 20);
+  // const m = 2;
+  // const n1 = random(2, 30);
+  // const n2 = random(4, 40);
+  // const n3 = 4;
+  const a = 1;
+  const b = 1;
   const m = 2;
-  const n1 = random(2, 30);
-  const n2 = random(4, 40);
+  const n1 = 2;
+  const n2 = 4;
   const n3 = 4;
 
-  const segments = random(2, 6);
+  const segments = 4;
   const phi = Math.PI / segments;
   const controlPoints = [];
 
@@ -29,6 +36,18 @@ const drawLeaf = ({ x, y, length, width, hasTeeth = false }) => {
   const scaleFactor = (width / 2) / largestPoint;
 
   const yStepLength = length / (controlPoints.length - 1);
+
+  // how far sidewyas the toth can spread
+  // if the random is inside the loop, we can end up with very different sizes of leaves, an they look like planes
+  const maxToothXMultiplier = 3;
+  const toothXMultiplier = random(1, maxToothXMultiplier, true);
+  // const toothXMultiplier = maxToothXMultiplier;
+
+  // how far worward the tooth can point
+  // all tooth points in the same direction is probably safer
+  const maxToothYMultiplier = .7;
+  const toothYMultiplier = random(-maxToothYMultiplier, maxToothYMultiplier);
+
   controlPoints.forEach((controlPoint, index) => {
     if (index === 0) return;
 
@@ -40,40 +59,42 @@ const drawLeaf = ({ x, y, length, width, hasTeeth = false }) => {
 
     const xStepLength = currentX - previousX;
 
-    const middleX = currentX - xStepLength / 2;
-    const middleY = currentY - yStepLength / 2;
+    // const xBump1 = random(-previousX * .3, previousX * .3);
+    // const xBump2 = random(-currentX * .3, currentX * .3);
+    // const yBump1 = random(-yStepLength * .3, yStepLength * .3);
+    // const yBump2 = random(-yStepLength * .3, yStepLength * .3);
 
-    const xBump1 = random(-previousX * .3, previousX * .3);
-    const xBump2 = random(-currentX * .3, currentX * .3);
-    const yBump1 = random(-yStepLength * .3, yStepLength * .3);
-    const yBump2 = random(-yStepLength * .3, yStepLength * .3);
-
-    // const xBump1 = 0;
-    // const xBump2 = 0;
-    // const yBump1 = 0;
-    // const yBump2 = 0;
+    const xBump1 = 0;
+    const xBump2 = 0;
+    const yBump1 = 0;
+    const yBump2 = 0;
 
     if (hasTeeth) {
-      const remaining = (controlPoints.length - index) / controlPoints.length;
-      const maxToothX = middleX * 3;
-      const toothX = random(middleX, maxToothX);
-      // const toothX = middleX;
+      const percentage = (index + 1) / controlPoints.length;
+      const middleX = currentX - xStepLength / 2;
+      const middleY = currentY - yStepLength / 2;
 
-      const maxToothYOffset = middleY * .5 * ((toothX - middleX) / maxToothX) * remaining;
-      const toothY = middleY + random(-maxToothYOffset, maxToothYOffset);
-      // const toothY = middleY;
+      const toothX = middleX * maxToothXMultiplier;
+
+      //we only allow bit Y tootth dispalcement for big X tooth
+      // 1 if the tooth is big, 0 if it's non existant
+      const toothreduction = (toothX - middleX) / ((middleX * maxToothXMultiplier) - middleX);
+      // the further foraward we go, the smaller the tooth. We don't want them to go in front of the leaf tip
+      const advancementreduction = Math.max(1 - BezierEasing(1, 0, 1, .6)(percentage), .3);
+
+      const toothY = middleY * (1 + toothYMultiplier * toothreduction * advancementreduction);//TODO: decomposer ce calcul pour faie le random a l'exterieur de la boucle
 
       // roundness of the tip
       // the bigger maxToothYOffset is, the smaller this can be become. Should not be above 0
-      const maxToothYBump = maxToothYOffset * 1.5;
-      const toothYBump = random(-maxToothYBump, 0);
-      // const toothYBump = 0;
+      // const maxToothYBump = maxToothYOffset * 1.5;
+      // const toothYBump = random(-maxToothYBump, 0);
+      const toothYBump = 0;
 
       // inclination of the blade
       // bigger number make the blade rounder, small make it dig in
-      const maxToothXBump = toothX * (1 - (toothX / maxToothX));
-      const toothXBump = random(-maxToothXBump, maxToothXBump);
-      // const toothXBump = 0;
+      // const maxToothXBump = toothX * (1 - (toothX / maxToothX));
+      // const toothXBump = random(-maxToothXBump, maxToothXBump);
+      const toothXBump = 0;
 
       leftHand.push(bezier(previousX, previousY, toothX, toothY, xBump1, yBump1, toothXBump, toothYBump));
       leftHand.push(bezier(toothX, toothY, currentX, currentY, -toothXBump, -toothYBump, xBump2, yBump2));
