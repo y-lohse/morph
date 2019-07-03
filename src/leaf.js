@@ -16,6 +16,7 @@ const getLeafParams = (useRandom) => {
     const width = random(50, 200);
 
     const segments = random(2, 6);
+    // const segments = 500;
 
     const a = random(1, 20);
     const b = random(1, 20);
@@ -167,8 +168,8 @@ const drawLeaf = ({ x, y, t, hasTeeth, params }) => {
   });
 
   const palette = ['#289B61', '#1C5438', '#71BC98', '#56A37E', '#EAC041', '#F9BB00', '#82453E', '#5A464C'];
-  // const baseColor = Color(palette[random(0, palette.length - 1)]);
-  const baseColor = Color(palette[0]);
+  const baseColor = Color(palette[random(0, palette.length - 1)]);
+  // const baseColor = Color(palette[0]);
   const light = baseColor.lighten(.2);
   const dark = baseColor.darken(.2);
 
@@ -193,13 +194,13 @@ const next = (t) => {
   const { path, gradient } = drawLeaf({
     x: 0,
     y: 20,
-    hasTeeth: false,
+    hasTeeth: true,
     params,
     t
   });
 
   shape
-  .animate(200)
+  .animate(150)
   .plot(path)
   .fill(gradient)
   .after((stch) => {
