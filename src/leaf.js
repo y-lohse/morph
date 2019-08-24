@@ -261,8 +261,8 @@ const drawLeaf = ({ x, y, t, hasTeeth, params }) => {
 
   const rotX = 0 / 1000; // turn left/right
   const rotY = 0 / 10000; //turn top bottom
-  const rotZ = Math.PI / 16; //rotate around the center
-  // const rotZ = 0; //rotate around the center
+  // const rotZ = Math.PI / 16; //rotate around the center
+  const rotZ = 0;
   const centerX = x;
   const centerY = y + currentLength / 2;
 
@@ -299,15 +299,6 @@ const drawLeaf = ({ x, y, t, hasTeeth, params }) => {
   const light = baseColor.lighten(0.2);
   const dark = baseColor.darken(0.2);
 
-  const maxX = Math.max(...projectedLeftHand.map(p => p.x));
-  const minX = Math.min(...projectedRightHand.map(p => p.x));
-  const finalWidth = maxX - minX;
-
-  //the following is wrong, rightHand can have lower Y
-  const maxY = Math.max(...projectedLeftHand.map(p => p.y));
-  const minY = Math.min(...projectedLeftHand.map(p => p.y));
-  const finalHeight = maxY - minY;
-
   const leftMostPoint = [...projectedLeftHand, ...projectedRightHand].sort(
     (p1, p2) => p2.x - p1.x
   )[0];
@@ -315,22 +306,12 @@ const drawLeaf = ({ x, y, t, hasTeeth, params }) => {
     (p1, p2) => p1.x - p2.x
   )[0];
 
-  console.log({ leftMostPoint, rightMostPoint });
-
-  const xstart = 0;
   const xend = Math.abs(leftMostPoint.x) + Math.abs(rightMostPoint.x);
   const xcenter = Math.abs(leftMostPoint.x);
   const relativeXCenter = 1 - xcenter / xend;
 
-  console.log({ relativeXCenter });
-
-  const first = projectedLeftHand.shift();
+  const originPoint = projectedLeftHand.shift();
   projectedRightHand.shift();
-
-  const last = projectedLeftHand[projectedLeftHand.length - 1];
-
-  console.log("from", first.x, first.y);
-  console.log("to", last.x, last.y);
 
   const gradient = scene.gradient("linear", function(stop) {
     stop.at(0, light.hex());
@@ -347,23 +328,78 @@ const drawLeaf = ({ x, y, t, hasTeeth, params }) => {
       y: new_y
     };
   };
-  const startVector = { x: 0, y: -0.5 };
-  const endVector = { x: 0, y: 0.5 };
 
-  const theta = rotZ - Math.PI / 2;
-  const rstartVector = rotateVector(startVector, theta);
-  const rendVector = rotateVector(endVector, theta);
+  const rotateAround = ({ x, y }, { x: refX, y: refY }, angle) => {
+    let new_x =
+      (x - refX) * Math.cos(angle) - (y - refY) * Math.sin(angle) + refX;
+    let new_y =
+      (y - refY) * Math.cos(angle) + (x - refX) * Math.sin(angle) + refY;
 
-  // 0 .5 / 1 .5
-  gradient
-    .from(rstartVector.x + 0.5, rstartVector.y + 0.5)
-    .to(rendVector.x + 0.5, rendVector.y + 0.5);
+    return { x: new_x, y: new_y };
+  };
+
+  const normVector = ({ x, y }) => {
+    const length = Math.sqrt(x * x + y * y);
+    return {
+      x: x / length,
+      y: y / length
+    };
+  };
+
+  const first = leftHand[0];
+  const last = leftHand[leftHand.length - 1];
+
+  const finalFirst = originPoint;
+  const finalLast = projectedLeftHand[projectedLeftHand.length - 1];
+
+  console.log("from", first.x, first.y);
+  console.log("to", last.x, last.y);
+  console.log("transformed to");
+  console.log("from", finalFirst.x, finalFirst.y);
+  console.log("to", finalLast.x, finalLast.y);
+
+  const startVector = { x: first.x, y: first.y - 20 - currentLength / 2 };
+  const endVector = { x: last.x, y: last.y - 20 - currentLength / 2 };
+
+  const theta = rotZ;
+  let rstartVector = rotateVector(startVector, theta);
+  let rendVector = rotateVector(endVector, theta);
+
+  // rstartVector.y = rstartVector.y + 20 + currentLength / 2;
+  // rendVector.y = rendVector.y + 20 + currentLength / 2;
+
+  console.log({ rstartVector, rendVector });
+
+  rstartVector = normVector(rstartVector);
+  rendVector = normVector(rendVector);
+
+  rstartVector.x += 0.5;
+  rstartVector.y += 0.5;
+  rendVector.x += 0.5;
+  rendVector.y += 0.5;
+
+  console.log({ rstartVector, rendVector });
+
+  const textS = rotateAround({ x: 0.5, y: -0.5 }, { x: 0.5, y: 0.5 }, rotZ);
+  const textE = rotateAround({ x: 0.5, y: 1.5 }, { x: 0.5, y: 0.5 }, rotZ);
+  // const widthFactor = 1;
+  // const lengthFactor = 2;
+  // textS.x = (textS.x - 0.5) * widthFactor + 0.5;
+  // textS.y = (textS.y - 0.5) * lengthFactor + 0.5;
+  // textE.x = (textE.x - 0.5) * widthFactor + 0.5;
+  // textE.y = (textE.y - 0.5) * lengthFactor + 0.5;
+  console.log({ textS, textE });
+
+  // 0 .5 / 1 .5 -> real
+  // 0.5, 0 / 0.5, 1 -> following main axis
+  // gradient.from(rstartVector.x, rstartVector.y).to(rendVector.x, rendVector.y);
+  gradient.from(0, 0.5).to(1, 0.5);
 
   return {
     path: `
-    M ${first.x} ${first.y}
+    M ${originPoint.x} ${originPoint.y}
     ${projectedLeftHand.map(toSVGBezier).join(" ")}
-    M ${first.x} ${first.y}
+    M ${originPoint.x} ${originPoint.y}
     ${projectedRightHand.map(toSVGBezier).join(" ")}
   `,
     gradient
@@ -384,6 +420,7 @@ const next = t => {
   shape
     // .animate(150)
     .plot(path)
+    .rotate(20)
     .fill(gradient)
     .after(stch => {
       // if (t < 1) next(t + .05);
