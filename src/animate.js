@@ -10,6 +10,45 @@ const points = [
   { x: -50, y: 50 },
 ]
 
+const rotatePoint = (x, y, cx, cy, phiX, phiY, phiZ) => {
+  const cosa = Math.cos(phiZ);
+  const sina = Math.sin(phiZ);
+
+  const cosb = Math.cos(phiX);
+  const sinb = Math.sin(phiX);
+
+  const cosc = Math.cos(phiY);
+  const sinc = Math.sin(phiY);
+
+  const Axx = cosa*cosb;
+  const Axy = cosa*sinb*sinc - sina*cosc;
+  const Axz = cosa*sinb*cosc + sina*sinc;
+
+  const Ayx = sina*cosb;
+  const Ayy = sina*sinb*sinc + cosa*cosc;
+  const Ayz = sina*sinb*cosc - cosa*sinc;
+
+  const Azx = -sinb;
+  const Azy = cosb*sinc;
+  const Azz = cosb*cosc;
+
+  const px = x - cx;
+  const py = y - cy;
+  const pz = 1;
+
+  const rotatedX = Axx*px + Axy*py + Axz*pz;
+  const rotatedY = Ayx*px + Ayy*py + Ayz*pz;
+  const rotatedZ = Azx*px + Azy*py + Azz*pz;
+
+  const d = 1;
+  const r = d / rotatedZ;
+
+  const nx = r * rotatedX + cx;
+  const ny = r * rotatedY + cy;
+
+  return { x: nx, y: ny }
+}
+
 const cx = 0;
 const cy = 100;
 
@@ -17,44 +56,11 @@ const pitch = .001;
 const roll = .000;
 const yaw = 0;
 
-var cosa = Math.cos(yaw);
-var sina = Math.sin(yaw);
+for (let i = 0; i < points.length; i++) {
+    const newP = rotatePoint(points[i].x, points[i].y, cx, cy, pitch, roll, yaw)
 
-var cosb = Math.cos(pitch);
-var sinb = Math.sin(pitch);
-
-var cosc = Math.cos(roll);
-var sinc = Math.sin(roll);
-
-var Axx = cosa*cosb;
-var Axy = cosa*sinb*sinc - sina*cosc;
-var Axz = cosa*sinb*cosc + sina*sinc;
-
-var Ayx = sina*cosb;
-var Ayy = sina*sinb*sinc + cosa*cosc;
-var Ayz = sina*sinb*cosc - cosa*sinc;
-
-var Azx = -sinb;
-var Azy = cosb*sinc;
-var Azz = cosb*cosc;
-
-for (var i = 0; i < points.length; i++) {
-    var px = points[i].x - cx;
-    var py = points[i].y - cy;
-    var pz = 1;
-
-    const rotatedX = Axx*px + Axy*py + Axz*pz;
-    const rotatedY = Ayx*px + Ayy*py + Ayz*pz;
-    const rotatedZ = Azx*px + Azy*py + Azz*pz;
-
-    var d = 1;
-    var r = d / rotatedZ;
-
-    const x = r * rotatedX + cx;
-    const y = r * rotatedY + cy;
-
-    points[i].x = x;
-    points[i].y = y;
+    points[i].x = newP.x;
+    points[i].y = newP.y;
 }
 
 
