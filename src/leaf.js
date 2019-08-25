@@ -26,7 +26,7 @@ const getLeafParams = useRandom => {
     const n2 = random(4, 40);
     const n3 = 4;
 
-    // how far sidewyas the toth can spread
+    // how far sidewyas the teeth can spread
     // if the random is inside the loop, we can end up with very different sizes of leaves, an they look like planes
     const toothXMultiplier = random(1, maxToothXMultiplier, true);
 
@@ -121,7 +121,6 @@ const drawLeaf = ({ x, y, t, hasTeeth, params }) => {
   const minSegments = 2;
   const extraSegments = segments - minSegments;
   const currentSegments = 2 + Math.round(extraSegments * t);
-  console.log({ segments, currentSegments });
   const phi = Math.PI / currentSegments;
   const controlPoints = [];
 
@@ -259,8 +258,8 @@ const drawLeaf = ({ x, y, t, hasTeeth, params }) => {
     `C ${cx1} ${cy1} ${cx2} ${cy2} ${x} ${y}`;
   // project = (x, y, xy, cy, phiX, phiY, phiY)
 
-  const rotX = 0 / 1000; // turn left/right
-  const rotY = 0 / 10000; //turn top bottom
+  const rotX = random(-5, 5) / 1000; // turn left/right
+  const rotY = random(-10, 10) / 10000; //turn top bottom
   // const rotZ = Math.PI / 16; //rotate around the center
   const rotZ = 0;
   const centerX = x;
@@ -320,79 +319,6 @@ const drawLeaf = ({ x, y, t, hasTeeth, params }) => {
     stop.at(1, dark.saturate(0.3).hex());
   });
 
-  const rotateVector = ({ x, y }, angle) => {
-    let new_x = x * Math.cos(angle) - y * Math.sin(angle);
-    let new_y = x * Math.sin(angle) + y * Math.cos(angle);
-    return {
-      x: new_x,
-      y: new_y
-    };
-  };
-
-  const rotateAround = ({ x, y }, { x: refX, y: refY }, angle) => {
-    let new_x =
-      (x - refX) * Math.cos(angle) - (y - refY) * Math.sin(angle) + refX;
-    let new_y =
-      (y - refY) * Math.cos(angle) + (x - refX) * Math.sin(angle) + refY;
-
-    return { x: new_x, y: new_y };
-  };
-
-  const normVector = ({ x, y }) => {
-    const length = Math.sqrt(x * x + y * y);
-    return {
-      x: x / length,
-      y: y / length
-    };
-  };
-
-  const first = leftHand[0];
-  const last = leftHand[leftHand.length - 1];
-
-  const finalFirst = originPoint;
-  const finalLast = projectedLeftHand[projectedLeftHand.length - 1];
-
-  console.log("from", first.x, first.y);
-  console.log("to", last.x, last.y);
-  console.log("transformed to");
-  console.log("from", finalFirst.x, finalFirst.y);
-  console.log("to", finalLast.x, finalLast.y);
-
-  const startVector = { x: first.x, y: first.y - 20 - currentLength / 2 };
-  const endVector = { x: last.x, y: last.y - 20 - currentLength / 2 };
-
-  const theta = rotZ;
-  let rstartVector = rotateVector(startVector, theta);
-  let rendVector = rotateVector(endVector, theta);
-
-  // rstartVector.y = rstartVector.y + 20 + currentLength / 2;
-  // rendVector.y = rendVector.y + 20 + currentLength / 2;
-
-  console.log({ rstartVector, rendVector });
-
-  rstartVector = normVector(rstartVector);
-  rendVector = normVector(rendVector);
-
-  rstartVector.x += 0.5;
-  rstartVector.y += 0.5;
-  rendVector.x += 0.5;
-  rendVector.y += 0.5;
-
-  console.log({ rstartVector, rendVector });
-
-  const textS = rotateAround({ x: 0.5, y: -0.5 }, { x: 0.5, y: 0.5 }, rotZ);
-  const textE = rotateAround({ x: 0.5, y: 1.5 }, { x: 0.5, y: 0.5 }, rotZ);
-  // const widthFactor = 1;
-  // const lengthFactor = 2;
-  // textS.x = (textS.x - 0.5) * widthFactor + 0.5;
-  // textS.y = (textS.y - 0.5) * lengthFactor + 0.5;
-  // textE.x = (textE.x - 0.5) * widthFactor + 0.5;
-  // textE.y = (textE.y - 0.5) * lengthFactor + 0.5;
-  console.log({ textS, textE });
-
-  // 0 .5 / 1 .5 -> real
-  // 0.5, 0 / 0.5, 1 -> following main axis
-  // gradient.from(rstartVector.x, rstartVector.y).to(rendVector.x, rendVector.y);
   gradient.from(0, 0.5).to(1, 0.5);
 
   return {
@@ -406,7 +332,7 @@ const drawLeaf = ({ x, y, t, hasTeeth, params }) => {
   };
 };
 
-const params = getLeafParams(false);
+const params = getLeafParams(true);
 
 const next = t => {
   const { path, gradient } = drawLeaf({
@@ -420,7 +346,7 @@ const next = t => {
   shape
     // .animate(150)
     .plot(path)
-    .rotate(20)
+    .rotate(random(-75, 75))
     .fill(gradient)
     .after(stch => {
       // if (t < 1) next(t + .05);
