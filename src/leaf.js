@@ -41,6 +41,10 @@ const getLeafParams = useRandom => {
     // the randomness can be changed at each step, it looks cool
     const bladeAngleMultiplier = random(-0.5, 0.5);
 
+    const rotX = random(-5, 5) / 1000; // turn left/right
+    const rotY = random(-10, 10) / 10000; //turn top bottom
+    const rotZ = random(-65, 65);
+
     return {
       a,
       b,
@@ -54,7 +58,10 @@ const getLeafParams = useRandom => {
       bladeAngleMultiplier,
       length,
       width,
-      segments
+      segments,
+      rotX,
+      rotY,
+      rotZ
     };
   } else {
     const a = 1;
@@ -73,6 +80,10 @@ const getLeafParams = useRandom => {
     const width = 150;
     const segments = 2;
 
+    const rotX = 0;
+    const rotY = 0;
+    const rotZ = 0;
+
     return {
       a,
       b,
@@ -86,7 +97,10 @@ const getLeafParams = useRandom => {
       bladeAngleMultiplier,
       length,
       width,
-      segments
+      segments,
+      rotX,
+      rotY,
+      rotZ
     };
   }
 };
@@ -105,7 +119,9 @@ const drawLeaf = ({ x, y, t, hasTeeth, params }) => {
     bladeAngleMultiplier,
     length,
     width,
-    segments
+    segments,
+    rotX,
+    rotY
   } = params;
 
   const currentLength = Math.ceil(
@@ -138,15 +154,17 @@ const drawLeaf = ({ x, y, t, hasTeeth, params }) => {
     const currentY = Math.round(index * yStepLength + y);
     const previousY = Math.round(currentY - yStepLength); //no +y on purpose, creates non straight bezier
 
-    const previousX = Math.round(controlPoints[index - 1] * scaleFactor + x);
+    const previousX = Math.round(
+      (controlPoints[index - 1] || 0) * scaleFactor + x
+    );
     const currentX = Math.round(controlPoints[index] * scaleFactor + x);
 
     const xStepLength = currentX - previousX;
 
-    // const controlPoint1X = random(-previousX * .3, previousX * .3);
-    // const controlPoint2X = random(-currentX * .3, currentX * .3);
-    // const controlPoint1Y = random(-yStepLength * .3, yStepLength * .3);
-    // const controlPoint2Y = random(-yStepLength * .3, yStepLength * .3);
+    // const controlPoint1X = random(-previousX * 0.3, previousX * 0.3);
+    // const controlPoint2X = random(-currentX * 0.3, currentX * 0.3);
+    // const controlPoint1Y = random(-yStepLength * 0.3, yStepLength * 0.3);
+    // const controlPoint2Y = random(-yStepLength * 0.3, yStepLength * 0.3);
 
     const controlPoint1X = 0;
     const controlPoint2X = 0;
@@ -163,7 +181,7 @@ const drawLeaf = ({ x, y, t, hasTeeth, params }) => {
       //we only allow bit Y tooth displacement for big X tooth
       // 1 if the tooth is big, 0 if it's non existant
       const toothReduction =
-        (toothX - middleX) / (middleX * maxToothXMultiplier - middleX);
+        (toothX - middleX) / (middleX * maxToothXMultiplier - middleX) || 0;
       // the further foraward we go, the smaller the tooth. We don't want them to go in front of the leaf tip
       const advancementReduction = Math.max(
         1 - BezierEasing(1, 0, 1, 0.6)(percentage),
@@ -176,6 +194,8 @@ const drawLeaf = ({ x, y, t, hasTeeth, params }) => {
 
       const toothXBump = toothX * bladeAngleMultiplier;
       const toothRoundness = yStepLength * toothRoundnessMultiplier;
+
+      // console.log({ toothReduction, toothX, middleX, maxToothXMultiplier });
 
       leftHand.push(
         bezier(
@@ -258,10 +278,7 @@ const drawLeaf = ({ x, y, t, hasTeeth, params }) => {
     `C ${cx1} ${cy1} ${cx2} ${cy2} ${x} ${y}`;
   // project = (x, y, xy, cy, phiX, phiY, phiY)
 
-  const rotX = random(-5, 5) / 1000; // turn left/right
-  const rotY = random(-10, 10) / 10000; //turn top bottom
-  // const rotZ = Math.PI / 16; //rotate around the center
-  const rotZ = 0;
+  const rotZ = 0; // z rotation is applied at th end to keep the gradient drawing simple
   const centerX = x;
   const centerY = y + currentLength / 2;
 
@@ -338,20 +355,20 @@ const next = t => {
   const { path, gradient } = drawLeaf({
     x: 0,
     y: 20,
-    hasTeeth: false,
+    hasTeeth: true,
     params,
     t
   });
 
   shape
-    // .animate(150)
+    .animate(150)
     .plot(path)
-    .rotate(random(-75, 75))
+    .rotate(params.rotZ)
     .fill(gradient)
     .after(stch => {
-      // if (t < 1) next(t + .05);
+      if (t < 1) next(t + 0.05);
     });
 };
 
 const shape = scene.path();
-next(1);
+next(0);
